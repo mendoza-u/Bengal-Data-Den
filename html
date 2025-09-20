@@ -1,0 +1,2343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bengal Data Den</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #5a67d8;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            color: #4a5568;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .nav-tab.active {
+            background: #5a67d8;
+            color: white;
+        }
+
+        .content-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .content-panel.active {
+            display: block;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #5a67d8;
+        }
+
+        .form-group small {
+            color: #718096;
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #5a67d8;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4c51bf;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(90, 103, 216, 0.3);
+        }
+
+        .btn-secondary {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-info {
+            background: #4299e1;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        .student-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .student-item {
+            display: grid;
+            grid-template-columns: 30px 2fr 100px 80px 80px;
+            gap: 15px;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f7fafc;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .student-item:hover {
+            background: #edf2f7;
+        }
+
+        .student-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .student-item input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #cbd5e0;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .chart-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .chart-box h3 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .filter-section {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .filter-section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 25px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .stat-card .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            max-width: 400px;
+            z-index: 1000;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #276749;
+            border: 1px solid #9ae6b4;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border: 1px solid #90cdf4;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table th {
+            background: #f7fafc;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .comparison-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .comparison-table tr.struggling {
+            background: #fff5f5;
+        }
+
+        .comparison-table tr.struggling:hover {
+            background: #fed7d7;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .file-upload-area:hover {
+            border-color: #5a67d8;
+            background: #f7fafc;
+        }
+
+        .inline-loading {
+            display: inline-block;
+            margin-left: 10px;
+            color: #5a67d8;
+            font-size: 0.9em;
+        }
+
+        .progress-indicator {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 8px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #48bb78, #38a169);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge-el {
+            background: #fed7e2;
+            color: #97266d;
+        }
+
+        .badge-sped {
+            background: #e9d8fd;
+            color: #553c9a;
+        }
+
+        .action-menu {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .student-item {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .nav-tabs, .filter-section, .btn {
+                display: none !important;
+            }
+
+            .content-panel {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐅 Bengal Data Den</h1>
+            <p>Student Assessment Data Management & Analysis System</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('input', this)">📝 Input Data</button>
+            <button class="nav-tab" onclick="switchTab('roster', this)">👥 Manage Rosters</button>
+            <button class="nav-tab" onclick="switchTab('analytics', this)">📈 Analytics Center</button>
+            <button class="nav-tab" onclick="switchTab('compare', this)">🔍 Compare Classes</button>
+            <button class="nav-tab" onclick="switchTab('cfas', this)">📋 Manage CFAs</button>
+            <button class="nav-tab" onclick="switchTab('upload', this)">📤 Upload Matrix</button>
+            <button class="nav-tab" onclick="switchTab('progress', this)">📊 Progress Tracking</button>
+        </div>
+
+        <div id="alertMessage" class="alert"></div>
+
+        <!-- Input Data Panel -->
+        <div id="input-panel" class="content-panel active">
+            <h2>Input Assessment Data</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="inputGrade">Grade Level</label>
+                    <select id="inputGrade" name="inputGrade" onchange="updateInputTeachers()">
+                        <option value="">Select Grade</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inputTeacher">Teacher</label>
+                    <select id="inputTeacher" name="inputTeacher" onchange="loadRosterForInput()">
+                        <option value="">Select Teacher</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="inputCFA">CFA</label>
+                    <select id="inputCFA" name="inputCFA">
+                        <option value="">Select CFA</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pointsPossible">Points Possible</label>
+                    <input type="number" id="pointsPossible" name="pointsPossible" value="10" min="1">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="selectAll" name="selectAll" onchange="toggleSelectAll()">
+                    Select All Students
+                </label>
+            </div>
+
+            <div id="studentScoresList" class="student-list">
+                <p style="color: #718096; text-align: center;">Select grade and teacher to load students</p>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <button class="btn btn-primary" onclick="saveScores()">💾 Save Scores</button>
+                <button class="btn btn-secondary" onclick="loadExistingScores()">📥 Load Existing Scores</button>
+                <button class="btn btn-info" onclick="clearScores()">🔄 Clear Form</button>
+                <span id="saveStatus" class="inline-loading" style="display: none;">Saving...</span>
+            </div>
+        </div>
+
+        <!-- Roster Management Panel -->
+        <div id="roster-panel" class="content-panel">
+            <h2>Manage Student Rosters</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="rosterGrade">Grade Level</label>
+                    <select id="rosterGrade" name="rosterGrade" onchange="updateRosterTeachers()">
+                        <option value="">Select Grade</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="rosterTeacher">Teacher</label>
+                    <select id="rosterTeacher" name="rosterTeacher" onchange="loadRosterStudents()">
+                        <option value="">Select Teacher</option>
+                    </select>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">Add Students</h3>
+            
+            <div id="manualRosterEntry" style="display: block;">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="newStudentId">Student ID</label>
+                        <input type="text" id="newStudentId" name="newStudentId" placeholder="Enter ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="newStudentName">Student Name</label>
+                        <input type="text" id="newStudentName" name="newStudentName" placeholder="Last, First">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="newStudentEL" name="newStudentEL">
+                            English Learner (EL)
+                        </label>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addSingleStudent()">➕ Add Student</button>
+            </div>
+
+            <h3 style="margin-top: 30px;">Upload Roster File</h3>
+            <div class="file-upload-area" onclick="document.getElementById('rosterFile').click()">
+                <p style="font-size: 2em; margin-bottom: 10px;">📁</p>
+                <p>Click to upload or drag and drop</p>
+                <p style="color: #718096; font-size: 0.9em;">Supports CSV and Excel files</p>
+                <input type="file" id="rosterFile" name="rosterFile" accept=".csv,.xlsx,.xls" style="display: none;" onchange="handleRosterFile(event)">
+            </div>
+
+            <div id="uploadPreview" style="margin-top: 20px; display: none;">
+                <h4>File Preview</h4>
+                <div id="previewContent"></div>
+                <button class="btn btn-primary" onclick="confirmRosterUpload()">✅ Confirm Upload</button>
+                <button class="btn btn-danger" onclick="cancelRosterUpload()">❌ Cancel</button>
+            </div>
+
+            <h3 style="margin-top: 30px;">Current Roster</h3>
+            <div id="currentRoster" class="student-list">
+                <p style="color: #718096; text-align: center;">Select grade and teacher to view roster</p>
+            </div>
+        </div>
+
+        <!-- Analytics Center Panel (Combined Visualization) -->
+        <div id="analytics-panel" class="content-panel">
+            <h2>Analytics Center</h2>
+            
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <h3>Select Data to Analyze</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="analyticsGrade">Grade Level</label>
+                        <select id="analyticsGrade" onchange="updateAnalyticsOptions()">
+                            <option value="">All Grades</option>
+                            <option value="TK">TK</option>
+                            <option value="K">K</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="analyticsTeacher">Teacher(s)</label>
+                        <select id="analyticsTeacher" multiple size="4">
+                            <option value="">All Teachers</option>
+                        </select>
+                        <small>Hold Ctrl/Cmd to select multiple teachers for comparison</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="analyticsCFA">Assessment</label>
+                        <select id="analyticsCFA">
+                            <option value="">All Assessments</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="analyticsBand">Performance Band</label>
+                        <select id="analyticsBand">
+                            <option value="">All Bands</option>
+                            <option value="Standard Exceeded">Standard Exceeded</option>
+                            <option value="Standard Met">Standard Met</option>
+                            <option value="Standard Nearly Met">Standard Nearly Met</option>
+                            <option value="Standard Not Met">Standard Not Met</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-menu">
+                    <button class="btn btn-primary" onclick="runAnalytics()">📊 Analyze Data</button>
+                    <button class="btn btn-secondary" onclick="exportAnalytics()">📥 Export to CSV</button>
+                    <button class="btn btn-info" onclick="printAnalytics()">🖨️ Print Report</button>
+                    <button class="btn btn-danger" onclick="emailInterventionList()">📧 Email Intervention List</button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid" id="analyticsStats" style="display: none;">
+                <div class="stat-card">
+                    <h4>Total Students</h4>
+                    <div class="stat-value" id="statStudents">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);">
+                    <h4>Class Average</h4>
+                    <div class="stat-value" id="statAverage">0%</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);">
+                    <h4>Need Intervention</h4>
+                    <div class="stat-value" id="statNeedHelp">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);">
+                    <h4>Exceeding Standard</h4>
+                    <div class="stat-value" id="statExceeding">0</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div id="analyticsCharts" style="display: none;">
+                <!-- Performance Distribution Charts -->
+                <div class="charts-container">
+                    <div class="chart-box">
+                        <h3>Performance Distribution</h3>
+                        <canvas id="analyticsPieChart"></canvas>
+                    </div>
+                    <div class="chart-box">
+                        <h3>Score Distribution</h3>
+                        <canvas id="analyticsBarChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Teacher Comparison (shows when multiple teachers selected) -->
+                <div class="chart-box" id="teacherComparisonBox" style="margin-top: 30px; display: none;">
+                    <h3>Teacher Comparison</h3>
+                    <canvas id="teacherComparisonChart"></canvas>
+                    <div style="margin-top: 20px;">
+                        <table class="comparison-table" id="teacherComparisonTable"></table>
+                    </div>
+                </div>
+
+                <!-- Growth Trend Chart -->
+                <div class="chart-box" style="margin-top: 30px;">
+                    <h3>Performance Trends</h3>
+                    <canvas id="trendChart"></canvas>
+                </div>
+
+                <!-- Intervention List -->
+                <div class="chart-box" style="margin-top: 30px;">
+                    <h3>Students Needing Intervention</h3>
+                    <div class="action-menu">
+                        <button class="btn btn-danger btn-sm" onclick="showOnlyStruggling()">🚨 Show Only At-Risk</button>
+                        <button class="btn btn-info btn-sm" onclick="showNearlyMet()">⚠️ Show Nearly Met</button>
+                        <button class="btn btn-secondary btn-sm" onclick="showAllStudents()">👥 Show All</button>
+                        <button class="btn btn-primary btn-sm" onclick="sortByScore()">🔽 Sort by Score</button>
+                        <button class="btn btn-primary btn-sm" onclick="groupByTeacher()">👨‍🏫 Group by Teacher</button>
+                    </div>
+                    <div id="analyticsStudentList" style="max-height: 500px; overflow-y: auto;">
+                        <!-- Student table will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Data Message -->
+            <div id="analyticsNoData" style="text-align: center; padding: 60px;">
+                <p style="font-size: 3em; margin-bottom: 20px;">📊</p>
+                <h3 style="color: #4a5568; margin-bottom: 10px;">No Data Selected</h3>
+                <p style="color: #718096;">Select filters above and click "Analyze Data" to see results</p>
+            </div>
+        </div>
+
+        <!-- Compare Classes Panel -->
+        <div id="compare-panel" class="content-panel">
+            <h2>Compare Classes</h2>
+            
+            <div class="filter-section">
+                <h3>Selection Criteria</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="compareGrade">Grade</label>
+                        <select id="compareGrade" name="compareGrade" onchange="updateCompareOptions()">
+                            <option value="">Select Grade</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="compareCFA">CFA</label>
+                        <select id="compareCFA" name="compareCFA">
+                            <option value="">Select CFA</option>
+                        </select>
+                    </div>
+                </div>
+
+                <h4 style="margin-top: 20px;">Select Classes to Compare</h4>
+                <div id="classSelection" class="form-grid"></div>
+
+                <button class="btn btn-primary" onclick="runComparison()">📊 Compare Classes</button>
+            </div>
+
+            <div class="charts-container">
+                <div class="chart-box">
+                    <h3>Class Performance Comparison</h3>
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+                <div class="chart-box">
+                    <h3>Average Scores by Class</h3>
+                    <canvas id="averageChart"></canvas>
+                </div>
+            </div>
+
+            <div class="chart-box" style="margin-top: 30px;">
+                <h3>Detailed Comparison</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Teacher</th>
+                            <th>Students</th>
+                            <th>Avg Score</th>
+                            <th>Exceeded</th>
+                            <th>Met</th>
+                            <th>Nearly Met</th>
+                            <th>Not Met</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Manage CFAs Panel -->
+        <div id="cfas-panel" class="content-panel">
+            <h2>Manage Common Formative Assessments</h2>
+            
+            <h3>Create New CFA</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="newCFAName">CFA Name</label>
+                    <input type="text" id="newCFAName" name="newCFAName" placeholder="e.g., Math Unit 3">
+                </div>
+                <div class="form-group">
+                    <label for="newCFAGrade">Grade</label>
+                    <select id="newCFAGrade" name="newCFAGrade">
+                        <option value="">Select Grade</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newCFASubject">Subject</label>
+                    <select id="newCFASubject" name="newCFASubject">
+                        <option value="">Select Subject</option>
+                        <option value="Math">Math</option>
+                        <option value="ELA">ELA</option>
+                        <option value="Science">Science</option>
+                        <option value="Social Studies">Social Studies</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="createNewCFA()">➕ Create CFA</button>
+
+            <h3 style="margin-top: 30px;">Existing CFAs</h3>
+            <div id="cfaList" class="student-list">
+                <p style="color: #718096; text-align: center;">Loading CFAs...</p>
+            </div>
+        </div>
+
+        <!-- Upload Assessment Matrix Panel -->
+        <div id="upload-panel" class="content-panel">
+            <h2>Upload Assessment Matrix</h2>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="matrixGrade">Grade Level</label>
+                    <select id="matrixGrade" name="matrixGrade" onchange="updateMatrixTeachers()">
+                        <option value="">Select Grade</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="matrixTeacher">Teacher</label>
+                    <select id="matrixTeacher" name="matrixTeacher">
+                        <option value="">Select Teacher</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="matrixCFAName">CFA Name</label>
+                    <input type="text" id="matrixCFAName" name="matrixCFAName" placeholder="Enter CFA name">
+                </div>
+                <div class="form-group">
+                    <label for="matrixSubject">Subject</label>
+                    <select id="matrixSubject" name="matrixSubject">
+                        <option value="">Select Subject</option>
+                        <option value="Math">Math</option>
+                        <option value="ELA">ELA</option>
+                        <option value="Science">Science</option>
+                        <option value="Social Studies">Social Studies</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="file-upload-area" onclick="document.getElementById('matrixFile').click()">
+                <p style="font-size: 2em; margin-bottom: 10px;">📊</p>
+                <p>Click to upload Assessment Matrix</p>
+                <p style="color: #718096; font-size: 0.9em;">Excel format from Illuminate</p>
+                <input type="file" id="matrixFile" name="matrixFile" accept=".xlsx,.xls" style="display: none;" onchange="handleMatrixFile(event)">
+            </div>
+
+            <div id="matrixPreview" style="margin-top: 20px; display: none;">
+                <h4>Matrix Preview</h4>
+                <div id="matrixPreviewContent"></div>
+                <button class="btn btn-primary" onclick="confirmMatrixUpload()">✅ Upload Matrix</button>
+                <button class="btn btn-danger" onclick="cancelMatrixUpload()">❌ Cancel</button>
+            </div>
+        </div>
+
+        <!-- Progress Tracking Panel (NEW) -->
+        <div id="progress-panel" class="content-panel">
+            <h2>Student Progress Tracking</h2>
+            
+            <div class="filter-section">
+                <h3>Select Student or Class</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="progressGrade">Grade</label>
+                        <select id="progressGrade" onchange="updateProgressOptions()">
+                            <option value="">Select Grade</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="progressTeacher">Teacher</label>
+                        <select id="progressTeacher" onchange="loadProgressStudents()">
+                            <option value="">Select Teacher</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="progressStudent">Student</label>
+                        <select id="progressStudent">
+                            <option value="">All Students</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="loadProgressData()">📈 View Progress</button>
+            </div>
+
+            <div id="progressContent" style="display: none;">
+                <div class="chart-box">
+                    <h3>Growth Over Time</h3>
+                    <canvas id="progressChart"></canvas>
+                </div>
+                
+                <div class="stats-grid" style="margin-top: 20px;">
+                    <div class="stat-card">
+                        <h4>Assessments Taken</h4>
+                        <div class="stat-value" id="progressAssessments">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Average Growth</h4>
+                        <div class="stat-value" id="progressGrowth">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Current Level</h4>
+                        <div class="stat-value" id="progressLevel">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentPanel = 'input';
+        let uploadedFileData = null;
+        let charts = {};
+        let analyticsCharts = {};
+        let analyticsData = [];
+        let isInitialized = false;
+        let lastDataFetch = null;
+
+        // Initialize on load
+        window.onload = function() {
+            initializeApp();
+        };
+
+        function initializeApp() {
+            console.log('Initializing Bengal Data Den...');
+            
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(function() {
+                        console.log('Sheets initialized');
+                        if (!isInitialized) {
+                            isInitialized = true;
+                            showAlert('System ready', 'success');
+                        }
+                    })
+                    .withFailureHandler(function(error) {
+                        console.error('Init error:', error);
+                    })
+                    .initializeSheets();
+                
+                loadGrades();
+                loadAllTeachers();
+            } else {
+                console.error('Google Apps Script not available');
+                showAlert('Warning: Running in limited mode', 'info');
+            }
+        }
+
+        // Tab switching
+        function switchTab(tab, button) {
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            button.classList.add('active');
+            
+            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById(tab + '-panel').classList.add('active');
+            
+            currentPanel = tab;
+            
+            // Load data for specific tabs
+            if (tab === 'analytics') {
+                setTimeout(() => {
+                    loadAnalyticsDefaults();
+                }, 100);
+            } else if (tab === 'cfas') {
+                setTimeout(() => loadCFAList(), 100);
+            } else if (tab === 'progress') {
+                setTimeout(() => loadProgressDefaults(), 100);
+            }
+        }
+
+        // Alert messages
+        function showAlert(message, type = 'info') {
+            const alert = document.getElementById('alertMessage');
+            if (alert) {
+                alert.className = 'alert show alert-' + type;
+                alert.textContent = message;
+                
+                setTimeout(() => {
+                    alert.classList.remove('show');
+                }, 5000);
+            }
+        }
+
+        // Show inline status
+        function showInlineStatus(elementId, message) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.textContent = message;
+                el.style.display = 'inline-block';
+            }
+        }
+
+        function hideInlineStatus(elementId) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.style.display = 'none';
+            }
+        }
+
+        // Load grades
+        function loadGrades() {
+            if (typeof google === 'undefined' || !google.script) return;
+            
+            google.script.run
+                .withSuccessHandler(function(grades) {
+                    const selects = ['inputGrade', 'rosterGrade', 'analyticsGrade', 'compareGrade', 
+                                    'newCFAGrade', 'matrixGrade', 'progressGrade'];
+                    
+                    selects.forEach(id => {
+                        const select = document.getElementById(id);
+                        if (select) {
+                            const currentValue = select.value;
+                            select.innerHTML = '<option value="">Select Grade</option>';
+                            if (id === 'analyticsGrade') {
+                                select.innerHTML = '<option value="">All Grades</option>';
+                            }
+                            grades.forEach(grade => {
+                                select.innerHTML += `<option value="${grade}">${grade}</option>`;
+                            });
+                            if (currentValue) select.value = currentValue;
+                        }
+                    });
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error loading grades:', error);
+                })
+                .getGrades();
+        }
+
+        // Load all teachers
+        function loadAllTeachers() {
+            if (typeof google === 'undefined' || !google.script) return;
+            
+            google.script.run
+                .withSuccessHandler(function(teachers) {
+                    const analyticsTeacher = document.getElementById('analyticsTeacher');
+                    if (analyticsTeacher) {
+                        analyticsTeacher.innerHTML = '<option value="">All Teachers</option>';
+                        teachers.forEach(teacher => {
+                            analyticsTeacher.innerHTML += `<option value="${teacher}">${teacher}</option>`;
+                        });
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error loading teachers:', error);
+                })
+                .getAllTeachers();
+        }
+
+        // Update teachers based on grade
+        function updateInputTeachers() {
+            const grade = document.getElementById('inputGrade').value;
+            if (!grade) return;
+            
+            google.script.run
+                .withSuccessHandler(function(teachers) {
+                    const select = document.getElementById('inputTeacher');
+                    select.innerHTML = '<option value="">Select Teacher</option>';
+                    teachers.forEach(teacher => {
+                        select.innerHTML += `<option value="${teacher}">${teacher}</option>`;
+                    });
+                    loadCFAs(grade);
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error:', error);
+                })
+                .getTeachersByGrade(grade);
+        }
+
+        function updateRosterTeachers() {
+            const grade = document.getElementById('rosterGrade').value;
+            if (!grade) return;
+            
+            google.script.run
+                .withSuccessHandler(function(teachers) {
+                    const select = document.getElementById('rosterTeacher');
+                    select.innerHTML = '<option value="">Select Teacher</option>';
+                    teachers.forEach(teacher => {
+                        select.innerHTML += `<option value="${teacher}">${teacher}</option>`;
+                    });
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error:', error);
+                })
+                .getTeachersByGrade(grade);
+        }
+
+        function updateMatrixTeachers() {
+            const grade = document.getElementById('matrixGrade').value;
+            if (!grade) return;
+            
+            google.script.run
+                .withSuccessHandler(function(teachers) {
+                    const select = document.getElementById('matrixTeacher');
+                    select.innerHTML = '<option value="">Select Teacher</option>';
+                    teachers.forEach(teacher => {
+                        select.innerHTML += `<option value="${teacher}">${teacher}</option>`;
+                    });
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error:', error);
+                })
+                .getTeachersByGrade(grade);
+        }
+
+        // Load CFAs
+        function loadCFAs(grade) {
+            google.script.run
+                .withSuccessHandler(function(cfas) {
+                    const selects = ['inputCFA', 'analyticsCFA', 'compareCFA'];
+                    selects.forEach(id => {
+                        const select = document.getElementById(id);
+                        if (select) {
+                            select.innerHTML = '<option value="">Select CFA</option>';
+                            if (id === 'analyticsCFA') {
+                                select.innerHTML = '<option value="">All Assessments</option>';
+                            }
+                            if (cfas && cfas.length > 0) {
+                                cfas.forEach(cfa => {
+                                    select.innerHTML += `<option value="${cfa.name}">${cfa.name}</option>`;
+                                });
+                            }
+                        }
+                    });
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error loading CFAs:', error);
+                })
+                .getCFAs(grade);
+        }
+
+        // Load roster for input
+        function loadRosterForInput() {
+            const grade = document.getElementById('inputGrade').value;
+            const teacher = document.getElementById('inputTeacher').value;
+            
+            if (!grade || !teacher) return;
+            
+            const list = document.getElementById('studentScoresList');
+            list.innerHTML = '<p style="color: #718096; text-align: center;">Loading students...</p>';
+            
+            google.script.run
+                .withSuccessHandler(function(students) {
+                    if (!students || students.length === 0) {
+                        list.innerHTML = '<p style="color: #718096; text-align: center;">No students found. Please add students to roster first.</p>';
+                    } else {
+                        let studentIndex = 0;
+                        list.innerHTML = students.map(student => `
+                            <div class="student-item">
+                                <input type="checkbox" class="student-checkbox" id="student-check-${studentIndex}" data-name="${student.name}">
+                                <label for="student-check-${studentIndex++}">
+                                    <div style="font-weight: 500;">${student.name} ${student.el ? '<span class="badge badge-el">EL</span>' : ''}</div>
+                                    ${student.id ? `<div style="color: #a0aec0; font-size: 0.85em; font-style: italic;">ID: ${student.id}</div>` : ''}
+                                </label>
+                                <input type="number" class="score-input" placeholder="Score" min="0" step="0.5" aria-label="Score for ${student.name}">
+                                <span class="score-percentage">-%</span>
+                                <span class="performance-band">-</span>
+                            </div>
+                        `).join('');
+                        
+                        document.querySelectorAll('.score-input').forEach(input => {
+                            input.addEventListener('input', updateScoreDisplay);
+                        });
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    list.innerHTML = '<p style="color: #f56565; text-align: center;">Error loading students</p>';
+                    console.error('Error:', error);
+                })
+                .getStudentsFromRoster(grade, teacher);
+        }
+
+        // Update score display
+        function updateScoreDisplay(event) {
+            const input = event.target;
+            const item = input.closest('.student-item');
+            const pointsPossible = parseFloat(document.getElementById('pointsPossible').value) || 10;
+            const score = parseFloat(input.value);
+            
+            if (!isNaN(score)) {
+                const percentage = (score / pointsPossible) * 100;
+                item.querySelector('.score-percentage').textContent = percentage.toFixed(1) + '%';
+                
+                let band = 'Standard Not Met';
+                if (percentage >= 82) band = 'Standard Exceeded';
+                else if (percentage >= 64) band = 'Standard Met';
+                else if (percentage >= 49) band = 'Standard Nearly Met';
+                
+                item.querySelector('.performance-band').textContent = band;
+                item.querySelector('.performance-band').style.color = getBandColor(band);
+            }
+        }
+
+        function getBandColor(band) {
+            const colors = {
+                'Standard Exceeded': '#48bb78',
+                'Standard Met': '#4299e1',
+                'Standard Nearly Met': '#ed8936',
+                'Standard Not Met': '#f56565'
+            };
+            return colors[band] || '#718096';
+        }
+
+        // Toggle select all
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll').checked;
+            document.querySelectorAll('.student-checkbox').forEach(cb => {
+                cb.checked = selectAll;
+            });
+        }
+
+        // Save scores
+        function saveScores() {
+            const grade = document.getElementById('inputGrade').value;
+            const teacher = document.getElementById('inputTeacher').value;
+            const cfa = document.getElementById('inputCFA').value;
+            const pointsPossible = parseFloat(document.getElementById('pointsPossible').value);
+            
+            if (!grade || !teacher || !cfa) {
+                showAlert('Please select grade, teacher, and CFA', 'error');
+                return;
+            }
+            
+            const scores = [];
+            document.querySelectorAll('.student-item').forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"].student-checkbox');
+                if (checkbox && checkbox.checked) {
+                    const scoreInput = item.querySelector('input.score-input');
+                    if (scoreInput) {
+                        const score = parseFloat(scoreInput.value);
+                        
+                        if (!isNaN(score)) {
+                            scores.push({
+                                studentName: checkbox.dataset.name,
+                                score: score
+                            });
+                        }
+                    }
+                }
+            });
+            
+            if (scores.length === 0) {
+                showAlert('Please select students and enter scores', 'error');
+                return;
+            }
+            
+            if (confirm(`Save scores for ${scores.length} students?`)) {
+                showInlineStatus('saveStatus', 'Saving...');
+                google.script.run
+                    .withSuccessHandler(function(result) {
+                        hideInlineStatus('saveStatus');
+                        showAlert('Scores saved successfully!', 'success');
+                        clearScores();
+                        // Mark that we need fresh data for visualization
+                        lastDataFetch = null;
+                    })
+                    .withFailureHandler(function(error) {
+                        hideInlineStatus('saveStatus');
+                        showAlert('Error saving scores', 'error');
+                        console.error('Error:', error);
+                    })
+                    .saveBatchScores({
+                        grade: grade,
+                        teacher: teacher,
+                        cfa: cfa,
+                        pointsPossible: pointsPossible,
+                        scores: scores
+                    });
+            }
+        }
+
+        // Load existing scores
+        function loadExistingScores() {
+            const grade = document.getElementById('inputGrade').value;
+            const teacher = document.getElementById('inputTeacher').value;
+            const cfa = document.getElementById('inputCFA').value;
+            
+            if (!grade || !teacher || !cfa) {
+                showAlert('Please select grade, teacher, and CFA', 'error');
+                return;
+            }
+            
+            showInlineStatus('saveStatus', 'Loading scores...');
+            google.script.run
+                .withSuccessHandler(function(scores) {
+                    let loadedCount = 0;
+                    document.querySelectorAll('.student-item').forEach(item => {
+                        const checkbox = item.querySelector('.student-checkbox');
+                        if (checkbox) {
+                            const studentName = checkbox.dataset.name;
+                            
+                            if (scores && scores[studentName]) {
+                                checkbox.checked = true;
+                                const scoreInput = item.querySelector('.score-input');
+                                if (scoreInput) {
+                                    scoreInput.value = scores[studentName].score;
+                                    scoreInput.dispatchEvent(new Event('input'));
+                                    loadedCount++;
+                                }
+                            }
+                        }
+                    });
+                    hideInlineStatus('saveStatus');
+                    if (loadedCount > 0) {
+                        showAlert(`Loaded scores for ${loadedCount} students`, 'success');
+                    } else {
+                        showAlert('No existing scores found for this CFA', 'info');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    hideInlineStatus('saveStatus');
+                    showAlert('Error loading scores', 'error');
+                    console.error('Error:', error);
+                })
+                .getCFAScores(grade, teacher, cfa);
+        }
+
+        // Clear scores
+        function clearScores() {
+            document.querySelectorAll('.student-checkbox').forEach(cb => cb.checked = false);
+            document.querySelectorAll('.score-input').forEach(input => {
+                input.value = '';
+                const item = input.closest('.student-item');
+                if (item) {
+                    const percentage = item.querySelector('.score-percentage');
+                    const band = item.querySelector('.performance-band');
+                    if (percentage) percentage.textContent = '-%';
+                    if (band) {
+                        band.textContent = '-';
+                        band.style.color = '';
+                    }
+                }
+            });
+            document.getElementById('selectAll').checked = false;
+        }
+
+        // ANALYTICS CENTER FUNCTIONS
+        function loadAnalyticsDefaults() {
+            loadGrades();
+            loadAllTeachers();
+            loadCFAs('');
+        }
+
+        function updateAnalyticsOptions() {
+            const grade = document.getElementById('analyticsGrade').value;
+            
+            if (grade) {
+                google.script.run
+                    .withSuccessHandler(function(teachers) {
+                        const select = document.getElementById('analyticsTeacher');
+                        select.innerHTML = '<option value="">All Teachers</option>';
+                        teachers.forEach(teacher => {
+                            select.innerHTML += `<option value="${teacher}">${teacher}</option>`;
+                        });
+                    })
+                    .getTeachersByGrade(grade);
+                
+                loadCFAs(grade);
+            } else {
+                loadAllTeachers();
+                loadCFAs('');
+            }
+        }
+
+        function runAnalytics() {
+            // Get selected values
+            const grade = document.getElementById('analyticsGrade').value;
+            const teacherSelect = document.getElementById('analyticsTeacher');
+            const selectedTeachers = Array.from(teacherSelect.selectedOptions)
+                .map(o => o.value)
+                .filter(v => v !== '');
+            const cfa = document.getElementById('analyticsCFA').value;
+            const band = document.getElementById('analyticsBand').value;
+            
+            // Build filter object
+            const filters = {};
+            if (grade) filters.grade = grade;
+            if (selectedTeachers.length === 1) filters.teacher = selectedTeachers[0];
+            if (cfa) filters.cfa = cfa;
+            if (band) filters.performanceBand = band;
+            
+            console.log('Analytics filters:', filters);
+            
+            // Show UI elements
+            document.getElementById('analyticsStats').style.display = 'grid';
+            document.getElementById('analyticsCharts').style.display = 'block';
+            document.getElementById('analyticsNoData').style.display = 'none';
+            
+            // Get data
+            google.script.run
+                .withSuccessHandler(function(data) {
+                    console.log('Received data:', data ? data.length + ' records' : 'null');
+                    
+                    if (!data || data.length === 0) {
+                        document.getElementById('analyticsStats').style.display = 'none';
+                        document.getElementById('analyticsCharts').style.display = 'none';
+                        document.getElementById('analyticsNoData').style.display = 'block';
+                        showAlert('No data found for selected filters', 'info');
+                        return;
+                    }
+                    
+                    analyticsData = data;
+                    
+                    // Update all visualizations
+                    updateAnalyticsStats(data);
+                    createAnalyticsCharts(data);
+                    createStudentList(data);
+                    
+                    // Show teacher comparison if multiple teachers
+                    if (selectedTeachers.length > 1) {
+                        createTeacherComparison(data, selectedTeachers);
+                        document.getElementById('teacherComparisonBox').style.display = 'block';
+                    } else {
+                        document.getElementById('teacherComparisonBox').style.display = 'none';
+                    }
+                    
+                    showAlert(`Analyzed ${data.length} student records`, 'success');
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error:', error);
+                    showAlert('Error loading data. Please try again.', 'error');
+                    document.getElementById('analyticsStats').style.display = 'none';
+                    document.getElementById('analyticsCharts').style.display = 'none';
+                    document.getElementById('analyticsNoData').style.display = 'block';
+                })
+.getDataDirect(filters);
+        }
+
+        function updateAnalyticsStats(data) {
+            document.getElementById('statStudents').textContent = data.length;
+            
+            const avg = data.reduce((sum, d) => sum + (d.percentage || 0), 0) / data.length;
+            document.getElementById('statAverage').textContent = avg.toFixed(1) + '%';
+            
+            const needHelp = data.filter(d => 
+                d.performanceBand === 'Standard Not Met' || 
+                d.performanceBand === 'Standard Nearly Met'
+            ).length;
+            document.getElementById('statNeedHelp').textContent = needHelp;
+            
+            const exceeding = data.filter(d => d.performanceBand === 'Standard Exceeded').length;
+            document.getElementById('statExceeding').textContent = exceeding;
+        }
+
+        function createAnalyticsCharts(data) {
+            // Destroy existing charts
+            if (analyticsCharts.pie) analyticsCharts.pie.destroy();
+            if (analyticsCharts.bar) analyticsCharts.bar.destroy();
+            
+            // Count performance bands
+            const bands = {
+                'Standard Exceeded': 0,
+                'Standard Met': 0,
+                'Standard Nearly Met': 0,
+                'Standard Not Met': 0
+            };
+            
+            data.forEach(d => {
+                if (bands.hasOwnProperty(d.performanceBand)) {
+                    bands[d.performanceBand]++;
+                }
+            });
+            
+            // Pie chart
+            const ctx1 = document.getElementById('analyticsPieChart');
+            if (ctx1) {
+                analyticsCharts.pie = new Chart(ctx1.getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(bands),
+                        datasets: [{
+                            data: Object.values(bands),
+                            backgroundColor: ['#48bb78', '#4299e1', '#ed8936', '#f56565']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return `${label}: ${value} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Score distribution bar chart
+            const scoreRanges = {
+                '90-100%': 0,
+                '80-89%': 0,
+                '70-79%': 0,
+                '60-69%': 0,
+                '50-59%': 0,
+                '0-49%': 0
+            };
+            
+            data.forEach(d => {
+                const score = d.percentage || 0;
+                if (score >= 90) scoreRanges['90-100%']++;
+                else if (score >= 80) scoreRanges['80-89%']++;
+                else if (score >= 70) scoreRanges['70-79%']++;
+                else if (score >= 60) scoreRanges['60-69%']++;
+                else if (score >= 50) scoreRanges['50-59%']++;
+                else scoreRanges['0-49%']++;
+            });
+            
+            const ctx2 = document.getElementById('analyticsBarChart');
+            if (ctx2) {
+                analyticsCharts.bar = new Chart(ctx2.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(scoreRanges),
+                        datasets: [{
+                            label: 'Number of Students',
+                            data: Object.values(scoreRanges),
+                            backgroundColor: '#5a67d8'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Create trend chart (placeholder for now)
+            const ctx3 = document.getElementById('trendChart');
+            if (ctx3 && !analyticsCharts.trend) {
+                analyticsCharts.trend = new Chart(ctx3.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Assessment 1', 'Assessment 2', 'Assessment 3', 'Current'],
+                        datasets: [{
+                            label: 'Class Average',
+                            data: [65, 70, 75, data.reduce((sum, d) => sum + (d.percentage || 0), 0) / data.length],
+                            borderColor: '#5a67d8',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function createTeacherComparison(data, teachers) {
+            if (analyticsCharts.comparison) analyticsCharts.comparison.destroy();
+            
+            // Group by teacher
+            const byTeacher = {};
+            teachers.forEach(t => byTeacher[t] = []);
+            
+            data.forEach(d => {
+                if (byTeacher.hasOwnProperty(d.teacher)) {
+                    byTeacher[d.teacher].push(d);
+                }
+            });
+            
+            // Calculate stats for each teacher
+            const teacherStats = {};
+            Object.keys(byTeacher).forEach(teacher => {
+                const teacherData = byTeacher[teacher];
+                const scores = teacherData.map(d => d.percentage || 0);
+                
+                teacherStats[teacher] = {
+                    average: scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0,
+                    count: teacherData.length,
+                    exceeded: teacherData.filter(d => d.performanceBand === 'Standard Exceeded').length,
+                    met: teacherData.filter(d => d.performanceBand === 'Standard Met').length,
+                    nearlyMet: teacherData.filter(d => d.performanceBand === 'Standard Nearly Met').length,
+                    notMet: teacherData.filter(d => d.performanceBand === 'Standard Not Met').length
+                };
+            });
+            
+            // Create comparison chart
+            const ctx = document.getElementById('teacherComparisonChart');
+            if (ctx) {
+                analyticsCharts.comparison = new Chart(ctx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(teacherStats),
+                        datasets: [{
+                            label: 'Class Average (%)',
+                            data: Object.values(teacherStats).map(s => s.average),
+                            backgroundColor: '#5a67d8'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Create comparison table
+            const table = document.getElementById('teacherComparisonTable');
+            if (table) {
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Teacher</th>
+                            <th>Students</th>
+                            <th>Average</th>
+                            <th>Exceeded</th>
+                            <th>Met</th>
+                            <th>Nearly Met</th>
+                            <th>Not Met</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${Object.entries(teacherStats).map(([teacher, stats]) => `
+                            <tr>
+                                <td>${teacher}</td>
+                                <td>${stats.count}</td>
+                                <td>${stats.average.toFixed(1)}%</td>
+                                <td>${stats.exceeded}</td>
+                                <td>${stats.met}</td>
+                                <td>${stats.nearlyMet}</td>
+                                <td>${stats.notMet}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                `;
+            }
+        }
+
+        function createStudentList(data) {
+            const sortedData = [...data].sort((a, b) => (a.percentage || 0) - (b.percentage || 0));
+            
+            const html = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Teacher</th>
+                            <th>Assessment</th>
+                            <th>Score</th>
+                            <th>Performance</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody">
+                        ${sortedData.map(s => `
+                            <tr class="${s.performanceBand === 'Standard Not Met' || s.performanceBand === 'Standard Nearly Met' ? 'struggling' : ''}" 
+                                data-band="${s.performanceBand}">
+                                <td>${s.studentName}</td>
+                                <td>${s.teacher}</td>
+                                <td>${s.cfa || 'N/A'}</td>
+                                <td>${(s.percentage || 0).toFixed(1)}%</td>
+                                <td style="color: ${getBandColor(s.performanceBand)};">${s.performanceBand}</td>
+                                <td>
+                                    ${s.performanceBand === 'Standard Not Met' || s.performanceBand === 'Standard Nearly Met' ? 
+                                        '<button class="btn btn-danger btn-sm" onclick="planIntervention(\'' + s.studentName + '\')">Plan Intervention</button>' : 
+                                        '<span style="color: #48bb78;">On Track</span>'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('analyticsStudentList').innerHTML = html;
+        }
+
+        function showOnlyStruggling() {
+            const rows = document.querySelectorAll('#studentTableBody tr');
+            rows.forEach(row => {
+                const band = row.dataset.band;
+                if (band === 'Standard Not Met') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function showNearlyMet() {
+            const rows = document.querySelectorAll('#studentTableBody tr');
+            rows.forEach(row => {
+                const band = row.dataset.band;
+                if (band === 'Standard Nearly Met') {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function showAllStudents() {
+            const rows = document.querySelectorAll('#studentTableBody tr');
+            rows.forEach(row => {
+                row.style.display = '';
+            });
+        }
+
+        function sortByScore() {
+            createStudentList(analyticsData);
+        }
+
+        function groupByTeacher() {
+            const grouped = {};
+            analyticsData.forEach(s => {
+                if (!grouped[s.teacher]) grouped[s.teacher] = [];
+                grouped[s.teacher].push(s);
+            });
+            
+            let html = '<table class="comparison-table"><tbody>';
+            Object.entries(grouped).forEach(([teacher, students]) => {
+                html += `<tr><td colspan="6" style="background: #f7fafc; font-weight: bold;">${teacher} (${students.length} students)</td></tr>`;
+                students.sort((a, b) => (a.percentage || 0) - (b.percentage || 0)).forEach(s => {
+                    html += `
+                        <tr class="${s.performanceBand === 'Standard Not Met' || s.performanceBand === 'Standard Nearly Met' ? 'struggling' : ''}">
+                            <td>${s.studentName}</td>
+                            <td>${s.teacher}</td>
+                            <td>${s.cfa || 'N/A'}</td>
+                            <td>${(s.percentage || 0).toFixed(1)}%</td>
+                            <td style="color: ${getBandColor(s.performanceBand)};">${s.performanceBand}</td>
+                            <td>
+                                ${s.performanceBand === 'Standard Not Met' || s.performanceBand === 'Standard Nearly Met' ? 
+                                    '<button class="btn btn-danger btn-sm">Intervention</button>' : 
+                                    '<span style="color: #48bb78;">On Track</span>'}
+                            </td>
+                        </tr>
+                    `;
+                });
+            });
+            html += '</tbody></table>';
+            
+            document.getElementById('analyticsStudentList').innerHTML = html;
+        }
+
+        function planIntervention(studentName) {
+            showAlert(`Intervention planning for ${studentName} - Feature coming soon!`, 'info');
+        }
+
+        function exportAnalytics() {
+            const filters = {};
+            const grade = document.getElementById('analyticsGrade').value;
+            const teacherSelect = document.getElementById('analyticsTeacher');
+            const selectedTeachers = Array.from(teacherSelect.selectedOptions)
+                .map(o => o.value)
+                .filter(v => v !== '');
+            const cfa = document.getElementById('analyticsCFA').value;
+            const band = document.getElementById('analyticsBand').value;
+            
+            if (grade) filters.grade = grade;
+            if (selectedTeachers.length === 1) filters.teacher = selectedTeachers[0];
+            if (cfa) filters.cfa = cfa;
+            if (band) filters.performanceBand = band;
+            
+            showAlert('Exporting data...', 'info');
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    if (result && result.success) {
+                        const blob = new Blob([result.data], { type: 'text/csv' });
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'bengal_analytics_export.csv';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                        
+                        showAlert('Data exported successfully', 'success');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    showAlert('Error exporting data', 'error');
+                })
+                .exportToCSV(filters);
+        }
+
+        function printAnalytics() {
+            window.print();
+        }
+
+        function emailInterventionList() {
+            showAlert('Email feature coming soon!', 'info');
+        }
+
+        // Roster management functions
+        function addSingleStudent() {
+            const grade = document.getElementById('rosterGrade').value;
+            const teacher = document.getElementById('rosterTeacher').value;
+            const id = document.getElementById('newStudentId').value;
+            const name = document.getElementById('newStudentName').value;
+            const el = document.getElementById('newStudentEL').checked;
+            
+            if (!grade || !teacher || !name) {
+                showAlert('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    showAlert('Student added successfully', 'success');
+                    document.getElementById('newStudentId').value = '';
+                    document.getElementById('newStudentName').value = '';
+                    document.getElementById('newStudentEL').checked = false;
+                    loadRosterStudents();
+                })
+                .withFailureHandler(function(error) {
+                    showAlert('Error adding student', 'error');
+                    console.error('Error:', error);
+                })
+                .addStudentToRoster({
+                    id: id,
+                    name: name,
+                    grade: grade,
+                    teacher: teacher,
+                    el: el
+                });
+        }
+
+        function loadRosterStudents() {
+            const grade = document.getElementById('rosterGrade').value;
+            const teacher = document.getElementById('rosterTeacher').value;
+            
+            if (!grade || !teacher) return;
+            
+            const list = document.getElementById('currentRoster');
+            list.innerHTML = '<p style="color: #718096; text-align: center;">Loading roster...</p>';
+            
+            google.script.run
+                .withSuccessHandler(function(students) {
+                    if (!students || students.length === 0) {
+                        list.innerHTML = '<p style="color: #718096; text-align: center;">No students in roster</p>';
+                    } else {
+                        list.innerHTML = '<div style="margin-bottom: 10px; font-weight: 600;">Total Students: ' + students.length + '</div>';
+                        list.innerHTML += students.map(student => `
+                            <div class="student-item" style="grid-template-columns: 100px 2fr 100px;">
+                                <span>${student.id || 'N/A'}</span>
+                                <span>${student.name} ${student.el ? '<span class="badge badge-el">EL</span>' : ''}</span>
+                                <label>
+                                    <input type="checkbox" ${student.el ? 'checked' : ''} 
+                                           onchange="updateELStatus('${student.id}', this.checked)">
+                                    EL
+                                </label>
+                            </div>
+                        `).join('');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    list.innerHTML = '<p style="color: #f56565; text-align: center;">Error loading roster</p>';
+                    console.error('Error:', error);
+                })
+                .getStudentsFromRoster(grade, teacher);
+        }
+
+        function updateELStatus(studentId, isEL) {
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    showAlert('EL status updated', 'success');
+                })
+                .withFailureHandler(function(error) {
+                    showAlert('Error updating EL status', 'error');
+                    console.error('Error:', error);
+                })
+                .updateStudentEL(studentId, isEL);
+        }
+
+        // File handling functions
+        function handleRosterFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 5 * 1024 * 1024) {
+                showAlert('File too large. Please upload a file smaller than 5MB.', 'error');
+                event.target.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            if (file.name.endsWith('.csv')) {
+                reader.onload = function(e) {
+                    uploadedFileData = {
+                        type: 'csv',
+                        content: e.target.result,
+                        filename: file.name
+                    };
+                    showRosterPreview(e.target.result);
+                };
+                reader.readAsText(file);
+            } else {
+                reader.onload = function(e) {
+                    const arrayBuffer = e.target.result;
+                    const bytes = new Uint8Array(arrayBuffer);
+                    let binary = '';
+                    for (let i = 0; i < bytes.byteLength; i++) {
+                        binary += String.fromCharCode(bytes[i]);
+                    }
+                    uploadedFileData = {
+                        type: 'excel',
+                        content: btoa(binary),
+                        filename: file.name
+                    };
+                    document.getElementById('uploadPreview').style.display = 'block';
+                    document.getElementById('previewContent').innerHTML = 
+                        '<p style="color: #718096;">Excel file ready for upload. Click confirm to process.</p>';
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+
+        function showRosterPreview(content) {
+            const lines = content.split('\n').filter(line => line.trim()).slice(0, 5);
+            const preview = lines.map((line, index) => {
+                const cols = line.split(',').map(col => col.trim().replace(/^"|"$/g, ''));
+                return `<div style="padding: 8px; border-bottom: 1px solid #e2e8f0; ${index === 0 ? 'font-weight: bold; background: #f7fafc;' : ''}">
+                    ${cols.join(' | ')}
+                </div>`;
+            }).join('');
+            
+            document.getElementById('uploadPreview').style.display = 'block';
+            document.getElementById('previewContent').innerHTML = preview;
+        }
+
+        function confirmRosterUpload() {
+            const grade = document.getElementById('rosterGrade').value;
+            const teacher = document.getElementById('rosterTeacher').value;
+            
+            if (!grade || !teacher) {
+                showAlert('Please select grade and teacher', 'error');
+                return;
+            }
+            
+            if (!uploadedFileData) {
+                showAlert('No file selected', 'error');
+                return;
+            }
+            
+            showAlert('Uploading roster...', 'info');
+            
+            if (uploadedFileData.type === 'csv') {
+                google.script.run
+                    .withSuccessHandler(function(result) {
+                        showAlert('Roster uploaded successfully', 'success');
+                        cancelRosterUpload();
+                        loadRosterStudents();
+                    })
+                    .withFailureHandler(function(error) {
+                        showAlert('Error uploading roster', 'error');
+                        console.error('Error:', error);
+                    })
+                    .uploadRoster(uploadedFileData.content, grade, teacher);
+            } else {
+                google.script.run
+                    .withSuccessHandler(function(result) {
+                        showAlert('Roster uploaded successfully', 'success');
+                        cancelRosterUpload();
+                        loadRosterStudents();
+                    })
+                    .withFailureHandler(function(error) {
+                        showAlert('Error uploading roster', 'error');
+                        console.error('Error:', error);
+                    })
+                    .uploadRosterExcel(uploadedFileData.content, grade, teacher);
+            }
+        }
+
+        function cancelRosterUpload() {
+            document.getElementById('uploadPreview').style.display = 'none';
+            document.getElementById('rosterFile').value = '';
+            uploadedFileData = null;
+        }
+
+        // CFA Management
+        function createNewCFA() {
+            const name = document.getElementById('newCFAName').value;
+            const grade = document.getElementById('newCFAGrade').value;
+            const subject = document.getElementById('newCFASubject').value;
+            
+            if (!name || !grade || !subject) {
+                showAlert('Please fill in all fields', 'error');
+                return;
+            }
+            
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    showAlert('CFA created successfully', 'success');
+                    document.getElementById('newCFAName').value = '';
+                    document.getElementById('newCFAGrade').value = '';
+                    document.getElementById('newCFASubject').value = '';
+                    loadCFAList();
+                })
+                .withFailureHandler(function(error) {
+                    showAlert('Error creating CFA', 'error');
+                    console.error('Error:', error);
+                })
+                .createCFA(name, grade, subject);
+        }
+
+        function loadCFAList() {
+            google.script.run
+                .withSuccessHandler(function(cfas) {
+                    const list = document.getElementById('cfaList');
+                    if (list) {
+                        if (!cfas || cfas.length === 0) {
+                            list.innerHTML = '<p style="color: #718096; text-align: center;">No CFAs found</p>';
+                        } else {
+                            list.innerHTML = cfas.map(cfa => `
+                                <div class="student-item" style="grid-template-columns: 2fr 1fr 1fr;">
+                                    <span>${cfa.name}</span>
+                                    <span>Grade ${cfa.grade}</span>
+                                    <span>${cfa.subject}</span>
+                                </div>
+                            `).join('');
+                        }
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error loading CFAs:', error);
+                })
+                .getCFAs('');
+        }
+
+        // Comparison functions
+        function updateCompareOptions() {
+            const grade = document.getElementById('compareGrade').value;
+            if (!grade) return;
+            
+            loadCFAs(grade);
+            
+            google.script.run
+                .withSuccessHandler(function(teachers) {
+                    const container = document.getElementById('classSelection');
+                    if (container && teachers) {
+                        container.innerHTML = teachers.map(teacher => `
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" name="compareTeacher" value="${teacher}">
+                                    ${teacher}
+                                </label>
+                            </div>
+                        `).join('');
+                    }
+                })
+                .withFailureHandler(function(error) {
+                    console.error('Error:', error);
+                })
+                .getTeachersByGrade(grade);
+        }
+
+        function runComparison() {
+            const grade = document.getElementById('compareGrade').value;
+            const cfa = document.getElementById('compareCFA').value;
+            const selectedTeachers = Array.from(document.querySelectorAll('input[name="compareTeacher"]:checked'))
+                                          .map(cb => cb.value);
+            
+            if (!grade || !cfa) {
+                showAlert('Please select grade and CFA', 'error');
+                return;
+            }
+            
+            if (selectedTeachers.length === 0) {
+                showAlert('Please select at least one class', 'error');
+                return;
+            }
+            
+            showAlert('Running comparison...', 'info');
+            google.script.run
+                .withSuccessHandler(function(comparisonData) {
+                    if (comparisonData) {
+                        updateComparisonCharts(comparisonData);
+                        updateComparisonTable(comparisonData);
+                    }
+                    showAlert('Comparison complete', 'success');
+                })
+                .withFailureHandler(function(error) {
+                    showAlert('Error running comparison', 'error');
+                    console.error('Error:', error);
+                })
+                .getComparisonData({
+                    grade: grade,
+                    cfa: cfa,
+                    teachers: selectedTeachers
+                });
+        }
+
+        function updateComparisonCharts(data) {
+            if (!data) return;
+            
+            const teachers = Object.keys(data);
+            
+            // Stacked bar chart
+            const ctx1 = document.getElementById('comparisonChart');
+            if (ctx1) {
+                const context1 = ctx1.getContext('2d');
+                if (charts.comparison) charts.comparison.destroy();
+                
+                charts.comparison = new Chart(context1, {
+                    type: 'bar',
+                    data: {
+                        labels: teachers,
+                        datasets: [
+                            {
+                                label: 'Standard Exceeded',
+                                data: teachers.map(t => data[t].performanceBands['Standard Exceeded'] || 0),
+                                backgroundColor: '#48bb78'
+                            },
+                            {
+                                label: 'Standard Met',
+                                data: teachers.map(t => data[t].performanceBands['Standard Met'] || 0),
+                                backgroundColor: '#4299e1'
+                            },
+                            {
+                                label: 'Standard Nearly Met',
+                                data: teachers.map(t => data[t].performanceBands['Standard Nearly Met'] || 0),
+                                backgroundColor: '#ed8936'
+                            },
+                            {
+                                label: 'Standard Not Met',
+                                data: teachers.map(t => data[t].performanceBands['Standard Not Met'] || 0),
+                                backgroundColor: '#f56565'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: {
+                                stacked: true
+                            },
+                            y: {
+                                stacked: true
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Average scores chart
+            const ctx2 = document.getElementById('averageChart');
+            if (ctx2) {
+                const context2 = ctx2.getContext('2d');
+                if (charts.average) charts.average.destroy();
+                
+                charts.average = new Chart(context2, {
+                    type: 'bar',
+                    data: {
+                        labels: teachers,
+                        datasets: [{
+                            label: 'Average Score (%)',
+                            data: teachers.map(t => data[t].averageScore || 0),
+                            backgroundColor: '#5a67d8'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function updateComparisonTable(data) {
+            const tbody = document.getElementById('comparisonTableBody');
+            if (!tbody || !data) return;
+            
+            tbody.innerHTML = Object.keys(data).map(teacher => {
+                const d = data[teacher];
+                return `
+                    <tr>
+                        <td>${teacher}</td>
+                        <td>${d.studentCount || 0}</td>
+                        <td>${(d.averageScore || 0).toFixed(1)}%</td>
+                        <td>${d.performanceBands['Standard Exceeded'] || 0}</td>
+                        <td>${d.performanceBands['Standard Met'] || 0}</td>
+                        <td>${d.performanceBands['Standard Nearly Met'] || 0}</td>
+                        <td>${d.performanceBands['Standard Not Met'] || 0}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Matrix upload functions
+        function handleMatrixFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (file.size > 10 * 1024 * 1024) {
+                showAlert('File too large. Maximum 10MB.', 'error');
+                event.target.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const arrayBuffer = e.target.result;
+                const bytes = new Uint8Array(arrayBuffer);
+                let binary = '';
+                for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                
+                uploadedFileData = {
+                    type: 'matrix',
+                    content: btoa(binary),
+                    filename: file.name
+                };
+                
+                document.getElementById('matrixPreview').style.display = 'block';
+                document.getElementById('matrixPreviewContent').innerHTML = 
+                    '<p style="color: #718096;">Matrix file ready for processing. Click confirm to upload scores.</p>';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function confirmMatrixUpload() {
+            const grade = document.getElementById('matrixGrade').value;
+            const teacher = document.getElementById('matrixTeacher').value;
+            const cfaName = document.getElementById('matrixCFAName').value;
+            const subject = document.getElementById('matrixSubject').value;
+            
+            if (!grade || !teacher || !cfaName || !subject) {
+                showAlert('Please fill in all fields', 'error');
+                return;
+            }
+            
+            if (!uploadedFileData) {
+                showAlert('No file selected', 'error');
+                return;
+            }
+            
+            showAlert('Uploading matrix...', 'info');
+            google.script.run
+                .withSuccessHandler(function(result) {
+                    showAlert('Matrix uploaded successfully', 'success');
+                    cancelMatrixUpload();
+                    // Clear visualization cache
+                    lastDataFetch = null;
+                })
+                .withFailureHandler(function(error) {
+                    showAlert('Error uploading matrix', 'error');
+                    console.error('Error:', error);
+                })
+                .uploadAssessmentMatrix(uploadedFileData.content, grade, teacher, cfaName, subject);
+        }
+
+        function cancelMatrixUpload() {
+            document.getElementById('matrixPreview').style.display = 'none';
+            document.getElementById('matrixFile').value = '';
+            uploadedFileData = null;
+        }
+
+        // Progress Tracking Functions
+        function loadProgressDefaults() {
+            loadGrades();
+        }
+
+        function updateProgressOptions() {
+            const grade = document.getElementById('progressGrade').value;
+            if (!grade) return;
+            
+            google.script.run
+                .withSuccessHandler(function(teachers) {
+                    const select = document.getElementById('progressTeacher');
+                    select.innerHTML = '<option value="">Select Teacher</option>';
+                    teachers.forEach(teacher => {
+                        select.innerHTML += `<option value="${teacher}">${teacher}</option>`;
+                    });
+                })
+                .getTeachersByGrade(grade);
+        }
+
+        function loadProgressStudents() {
+            const grade = document.getElementById('progressGrade').value;
+            const teacher = document.getElementById('progressTeacher').value;
+            
+            if (!grade || !teacher) return;
+            
+            google.script.run
+                .withSuccessHandler(function(students) {
+                    const select = document.getElementById('progressStudent');
+                    select.innerHTML = '<option value="">All Students</option>';
+                    if (students && students.length > 0) {
+                        students.forEach(student => {
+                            select.innerHTML += `<option value="${student.name}">${student.name}</option>`;
+                        });
+                    }
+                })
+                .getStudentsFromRoster(grade, teacher);
+        }
+
+        function loadProgressData() {
+            const grade = document.getElementById('progressGrade').value;
+            const teacher = document.getElementById('progressTeacher').value;
+            const student = document.getElementById('progressStudent').value;
+            
+            if (!grade || !teacher) {
+                showAlert('Please select grade and teacher', 'error');
+                return;
+            }
+            
+            // Show progress content
+            document.getElementById('progressContent').style.display = 'block';
+            
+            // Placeholder data - would connect to real progress tracking
+            document.getElementById('progressAssessments').textContent = '4';
+            document.getElementById('progressGrowth').textContent = '+12%';
+            document.getElementById('progressLevel').textContent = 'Proficient';
+            
+            showAlert('Progress data loaded', 'success');
+        }
+    </script>
+</body>
+</html>
